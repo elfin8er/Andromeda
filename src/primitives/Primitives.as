@@ -68,6 +68,7 @@ public class Primitives {
 		primTable["-"]				= function(b:*):* { return interp.numarg(b, 0) - interp.numarg(b, 1) };
 		primTable["*"]				= function(b:*):* { return interp.numarg(b, 0) * interp.numarg(b, 1) };
 		primTable["/"]				= function(b:*):* { return interp.numarg(b, 0) / interp.numarg(b, 1) };
+		primTable["^"]				= function(b:*):* { return Math.pow(interp.numarg(b, 0), interp.numarg(b, 1)) };
 		primTable["randomFrom:to:"]	= primRandom;
 		primTable["<"]				= function(b:*):* { return compare(interp.arg(b, 0), interp.arg(b, 1)) < 0 };
 		primTable["="]				= function(b:*):* { return compare(interp.arg(b, 0), interp.arg(b, 1)) == 0 };
@@ -81,9 +82,11 @@ public class Primitives {
 		primTable["concatenate:with:"]	= function(b:*):* { return ("" + interp.arg(b, 0) + interp.arg(b, 1)).substr(0, 10240); };
 		primTable["letter:of:"]			= primLetterOf;
 		primTable["stringLength:"]		= function(b:*):* { return String(interp.arg(b, 0)).length };
+		primTable[":contains:"]		= primBaseContainsSub;
 
 		primTable["%"]					= primModulo;
 		primTable["rounded"]			= function(b:*):* { return Math.round(interp.numarg(b, 0)) };
+		primTable[":aWholeNumber"]			= primWholeNumber;
 		primTable["computeFunction:of:"] = primMathFunction;
 
 		// clone
@@ -134,6 +137,11 @@ public class Primitives {
 			return low + int(Math.random() * ((hi + 1) - low));
 		}
 		return (Math.random() * (hi - low)) + low;
+	}
+	
+	private function primWholeNumber(b:Block):Boolean {
+        var n1:Number = interp.numarg(b, 0);
+        return Math.round(n1)==n1;
 	}
 
 	private function primLetterOf(b:Block):String {
@@ -216,6 +224,13 @@ public class Primitives {
 			}
 		}
 		app.runtime.cloneCount++;
+	}
+	
+        private function primBaseContainsSub(b:Block):Boolean {
+		var base:String = interp.arg(b, 0);
+		var sub:String = interp.arg(b, 1);
+		if(base.indexOf(sub) >= 0) return true;
+		return false;
 	}
 
 	private function primDeleteClone(b:Block):void {
